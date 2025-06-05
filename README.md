@@ -4,8 +4,8 @@ Note: This is not yet production ready.
 
 **Get started**
 
-1. Create a new user, e.g. `agent-smith`
-2. Create an API key for `agent-smith`
+1. Create a new user, e.g. `agent-smith` (using admin.py)
+2. Create an API key for `agent-smith` (via logging in as the user and create one in the UI)
 3. Make sure to give `agent-smith` access to folders you want to expose
 
 4. Update docker-compose.yml
