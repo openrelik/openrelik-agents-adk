@@ -15,11 +15,19 @@
 import os
 
 from google.adk.agents import Agent
-from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioServerParameters
+from google.adk.tools.mcp_tool.mcp_toolset import (
+    MCPToolset,
+    StdioServerParameters,
+    SseServerParams,
+)
 
 from .sub_agents.forensic_analyst.agent import forensic_analyst
 from .tools.common import get_current_time
 from .utils import load_agent_files
+
+TIMESKETCH_MCP_URL = os.getenv("TIMESKETCH_MCP_URL ") or http://localhost:8081/sse
+OPENRELIK_MCP_URL = os.getenv("OPENRELIK_MCP_URL") or "http://localhost:8082/sse"
+
 
 description, instructions = load_agent_files(__file__)
 
@@ -44,6 +52,16 @@ root_agent = Agent(
                 ],
             ),
             tool_filter=["list_folder"],
+        ),
+        #  MCPToolset(
+        #     connection_params=SseServerParams(
+        #         url="OPENRELIK_MCP_URL"
+        #     )
+        # ),
+        MCPToolset(
+            connection_params=SseServerParams(
+                url="TIMESKETCH_MCP_URL"
+            )
         ),
     ],
 )
