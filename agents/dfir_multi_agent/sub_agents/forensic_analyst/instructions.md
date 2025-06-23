@@ -5,4 +5,4 @@
 
 ## Delegation
 
-- Ensure that control returns to the **DFIR manager** after a you complete your delegated task.
+- Ensure that control returns to the **DFIR manager** after you complete your delegated task.
