@@ -4,11 +4,9 @@ Note: This is not yet production ready.
 
 **Get started**
 
-1. Create a new user, e.g. `agent-smith` (using admin.py)
-2. Create an API key for `agent-smith` (via logging in as the user and create one in the UI)
-3. Make sure to give `agent-smith` access to folders you want to expose
+1. Create a new Google AI Studio API key
 
-4. Update docker-compose.yml
+2. Update docker-compose.yml
 
 ```
 openrelik-agents-adk:
@@ -19,8 +17,7 @@ openrelik-agents-adk:
     environment:
       - GOOGLE_GENAI_USE_VERTEXAI=FALSE
       - GOOGLE_API_KEY=<GOOGLE AI STUDIO API KEY>
-      - OPENRELIK_API_URL=http://host.docker.internal:8710
-      - OPENRELIK_API_KEY=<OPENRELIK API KEY>
+      - OPENRELIK_MCP_URL=http://openrelik-mcp-server:8081/mcp
     volumes:
       - ./dev-data/artifacts:/path/to/your/artifacts
       - ./openrelik-agents-adk:/usr/local/src/openrelik
