@@ -15,7 +15,7 @@
 import os
 
 from google.adk.agents import Agent
-from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioServerParameters
+from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StreamableHTTPConnectionParams
 
 from .sub_agents.forensic_analyst.agent import forensic_analyst
 from .tools.common import get_current_time
@@ -23,25 +23,19 @@ from .utils import load_agent_files
 
 description, instructions = load_agent_files(__file__)
 
+OPENRELIK_MCP_URL = os.getenv("OPENRELIK_MCP_URL") or "http://openrelik-mcp-server:8088/mcp"
+
 root_agent = Agent(
     name="dfir_multi_agent",
-    model="gemini-2.0-flash",
+    model="gemini-2.5-flash",
     description=description,
     instruction=instructions,
     sub_agents=[forensic_analyst],
     tools=[
         get_current_time,
         MCPToolset(
-            connection_params=StdioServerParameters(
-                command="python",
-                args=[
-                    "/usr/local/src/openrelik/openrelik_mcp_server.py",
-                    # Workaround for https://github.com/google/adk-python/issues/743
-                    # TODO: Remove this workaround when the issue is fixed and use
-                    # env variables directly in the MCP server.
-                    os.getenv("OPENRELIK_API_URL"),
-                    os.getenv("OPENRELIK_API_KEY"),
-                ],
+            connection_params=StreamableHTTPConnectionParams(
+                url=OPENRELIK_MCP_URL
             ),
             tool_filter=["list_folder"],
         ),

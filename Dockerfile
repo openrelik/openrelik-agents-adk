@@ -7,7 +7,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 
 # Install curl and python3-pip for fetching and installing uv
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
+    curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv
