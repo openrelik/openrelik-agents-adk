@@ -1,4 +1,5 @@
 # Use the official Docker Hub Ubuntu base image
+FROM ghcr.io/daschwanden/openrelik-mcp-server:fix-potholes AS mcp
 FROM ubuntu:24.04
 
 # Prevent needing to configure debian packages, stopping the setup of
@@ -19,6 +20,8 @@ WORKDIR /adk
 
 # Copy files needed to build
 COPY . ./
+
+COPY --from=mcp /app/main.py /usr/local/src/openrelik/openrelik_mcp_server.py
 
 # Install dependencies using uv and create a virtual environment
 # The virtual environment will be created in /adk/.venv by default

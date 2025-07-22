@@ -15,13 +15,30 @@
 import os
 
 from google.adk.agents import Agent
-from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StreamableHTTPConnectionParams
+from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioServerParameters, StreamableHTTPConnectionParams
 
 from ...utils import load_agent_files
 
 description, instructions = load_agent_files(__file__)
 
-OPENRELIK_MCP_URL = os.getenv("OPENRELIK_MCP_URL") or "http://openrelik-mcp-server:8088/mcp"
+OPENRELIK_MCP_SERVER = os.getenv("OPENRELIK_MCP_SERVER")
+
+if OPENRELIK_MCP_SERVER is not None:
+    connection_params=StreamableHTTPConnectionParams(
+        url=OPENRELIK_MCP_SERVER
+    )
+else:
+    connection_params=StdioServerParameters(
+        command="python",
+        args=[
+            "/usr/local/src/openrelik/openrelik_mcp_server.py",
+            # Workaround for https://github.com/google/adk-python/issues/743
+            # TODO: Remove this workaround when the issue is fixed and use
+            # env variables directly in the MCP server.
+            os.getenv("OPENRELIK_API_URL"),
+            os.getenv("OPENRELIK_API_KEY"),
+       ],
+   )
 
 forensic_analyst = Agent(
     name="forensic_analyst",
@@ -30,9 +47,8 @@ forensic_analyst = Agent(
     instruction=instructions,
     tools=[
         MCPToolset(
-            connection_params=StreamableHTTPConnectionParams(
-                url=OPENRELIK_MCP_URL
-            )
+            connection_params=connection_params,
         ),
     ],
 )
+
