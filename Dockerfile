@@ -1,5 +1,5 @@
 # Use the official Docker Hub Ubuntu base image
-FROM ghcr.io/daschwanden/openrelik-mcp-server:fix-potholes AS mcp
+FROM ghcr.io/openrleik/openrelik-mcp-server:latest AS mcp
 FROM ubuntu:24.04
 
 # Prevent needing to configure debian packages, stopping the setup of
