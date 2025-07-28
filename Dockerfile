@@ -1,4 +1,5 @@
 # Use the official Docker Hub Ubuntu base image
+FROM ghcr.io/openrleik/openrelik-mcp-server:latest AS mcp
 FROM ubuntu:24.04
 
 # Prevent needing to configure debian packages, stopping the setup of
@@ -7,7 +8,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 
 # Install curl and python3-pip for fetching and installing uv
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
+    curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv
@@ -19,6 +20,8 @@ WORKDIR /adk
 
 # Copy files needed to build
 COPY . ./
+
+COPY --from=mcp /app/main.py /usr/local/src/openrelik/openrelik_mcp_server.py
 
 # Install dependencies using uv and create a virtual environment
 # The virtual environment will be created in /adk/.venv by default
