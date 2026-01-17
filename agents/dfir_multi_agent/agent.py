@@ -12,47 +12,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 
-from google.adk.agents import Agent
-from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioServerParameters, StreamableHTTPConnectionParams
+from google.adk.agents import LlmAgent, SequentialAgent
+from google.adk.apps import ResumabilityConfig
+from google.adk.apps.app import App
 
-from .sub_agents.forensic_analyst.agent import forensic_analyst
-from .tools.common import get_current_time
+from .agents.hypothesis_agent.agent import hypothesis_agent
+from .agents.lead_agent.agent import lead_agent
+from .agents.plan_agent.agent import plan_agent
+from .agents.question_agent.agent import question_agent
+from .agents.task_agent.agent import task_agent
 from .utils import load_agent_files
 
 description, instructions = load_agent_files(__file__)
 
-OPENRELIK_MCP_SERVER = os.getenv("OPENRELIK_MCP_SERVER")
+plan_pipeline_agent = SequentialAgent(
+    name="PlanPipelineAgent",
+    sub_agents=[plan_agent, question_agent, lead_agent, hypothesis_agent, task_agent],
+)
 
-if OPENRELIK_MCP_SERVER is not None:
-    connection_params=StreamableHTTPConnectionParams(
-        url=OPENRELIK_MCP_SERVER
-    )
-else:
-    connection_params=StdioServerParameters(
-        command="python",
-        args=[
-            "/usr/local/src/openrelik/openrelik_mcp_server.py",
-            # Workaround for https://github.com/google/adk-python/issues/743
-            # TODO: Remove this workaround when the issue is fixed and use
-            # env variables directly in the MCP server.
-            os.getenv("OPENRELIK_API_URL"),
-            os.getenv("OPENRELIK_API_KEY"),
-       ],
-   )
-
-root_agent = Agent(
-    name="dfir_multi_agent",
-    model="gemini-2.5-flash",
+root_agent = LlmAgent(
+    name="CoordinatorAgent",
+    model="gemini-3-flash-preview",
     description=description,
     instruction=instructions,
-    sub_agents=[forensic_analyst],
-    tools=[
-        get_current_time,
-        MCPToolset(
-            connection_params=connection_params,
-            tool_filter=["list_folder"],
-        ),
-    ],
+    sub_agents=[plan_pipeline_agent],
+)
+
+app = App(
+    name="dfir_multi_agent",
+    root_agent=root_agent,
+    resumability_config=ResumabilityConfig(
+        is_resumable=True,
+    ),
 )

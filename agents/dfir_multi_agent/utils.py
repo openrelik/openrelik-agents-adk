@@ -33,3 +33,47 @@ def load_agent_files(agent_file: str) -> Tuple[str, str]:
     description = (agent_dir / "description.md").read_text(encoding="utf-8")
     instructions = (agent_dir / "instructions.md").read_text(encoding="utf-8")
     return description, instructions
+
+
+def load_settings() -> dict:
+    """Load settings from settings.toml in the same directory as this file.
+
+    Returns:
+        Dictionary of settings
+    """
+    try:
+        import tomllib
+    except ImportError:
+        # Fallback for Python < 3.11 if needed, though user specified > 3.10
+        # For strict compliance with user request to use built-in library, we assume it exists.
+        raise ImportError("tomllib is required (Python 3.11+)")
+
+    settings_path = Path(__file__).parent / "settings.toml"
+    if not settings_path.exists():
+        return {}
+
+    with settings_path.open("rb") as f:
+        return tomllib.load(f)
+
+
+def get_model_for_agent(agent_name: str, default_model: str = "gemini-2.5-flash") -> str:
+    """Get the model configuration for a specific agent.
+
+    Args:
+        agent_name: Name of the agent (e.g., 'PlanAgent')
+        default_model: Fallback model if not configured
+
+    Returns:
+        Model string
+    """
+    settings = load_settings()
+
+    # Check agent specific config
+    if agent_name in settings and "model" in settings[agent_name]:
+        return settings[agent_name]["model"]
+
+    # Check defaults
+    if "default" in settings and "model" in settings["default"]:
+        return settings["default"]["model"]
+
+    return default_model

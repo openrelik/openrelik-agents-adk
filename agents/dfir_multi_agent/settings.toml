@@ -1,0 +1,5 @@
+[default]
+model = "gemini-2.5-flash"
+
+[PlanAgent]
+model = "gemini-2.5-flash"
