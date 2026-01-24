@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# NOTE: At this point, this agent is only used for testing and debugging. It mocks the task
+# investigator agent and returns mock data.
 
 from google.adk.agents import LlmAgent
 from google.genai import types
