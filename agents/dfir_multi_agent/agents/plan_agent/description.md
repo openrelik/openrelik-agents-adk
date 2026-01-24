@@ -1,1 +1,0 @@
-Drafts and refines the investigative plan.
